@@ -8,26 +8,26 @@ import com.facebook.react.module.model.ReactModuleInfoProvider
 import java.util.HashMap
 
 class LibrespotPackage : BaseReactPackage() {
-  override fun getModule(name: String, reactContext: ReactApplicationContext): NativeModule? {
-    return if (name == LibrespotModule.NAME) {
-      LibrespotModule(reactContext)
-    } else {
-      null
-    }
-  }
+	override fun getModule(name: String, reactContext: ReactApplicationContext): NativeModule? {
+		return if (name == LibrespotModule.NAME) {
+			LibrespotModule(reactContext)
+		} else {
+			null
+		}
+	}
 
-  override fun getReactModuleInfoProvider(): ReactModuleInfoProvider {
-    return ReactModuleInfoProvider {
-      val moduleInfos: MutableMap<String, ReactModuleInfo> = HashMap()
-      moduleInfos[LibrespotModule.NAME] = ReactModuleInfo(
-        LibrespotModule.NAME,
-        LibrespotModule.NAME,
-        false,  // canOverrideExistingModule
-        false,  // needsEagerInit
-        false,  // isCxxModule
-        true // isTurboModule
-      )
-      moduleInfos
-    }
-  }
+	override fun getReactModuleInfoProvider(): ReactModuleInfoProvider {
+		return ReactModuleInfoProvider {
+			val moduleInfos: MutableMap<String, ReactModuleInfo> = HashMap()
+			moduleInfos[LibrespotModule.NAME] = ReactModuleInfo(
+				LibrespotModule.NAME,
+				LibrespotModule.NAME,
+				false,  // canOverrideExistingModule
+				false,  // needsEagerInit
+				false,  // isCxxModule
+				true // isTurboModule
+			)
+			moduleInfos
+		}
+	}
 }

@@ -5,19 +5,19 @@ import com.facebook.react.module.annotations.ReactModule
 
 @ReactModule(name = LibrespotModule.NAME)
 class LibrespotModule(reactContext: ReactApplicationContext) :
-  NativeLibrespotSpec(reactContext) {
+	NativeLibrespotSpec(reactContext) {
 
-  override fun getName(): String {
-    return NAME
-  }
+	override fun getName(): String {
+		return NAME
+	}
 
-  // Example method
-  // See https://reactnative.dev/docs/native-modules-android
-  override fun multiply(a: Double, b: Double): Double {
-    return a * b
-  }
+	// Example method
+	// See https://reactnative.dev/docs/native-modules-android
+	override fun doAThing(a: Double, b: Double) {
+		Log.e("We called a native function")
+	}
 
-  companion object {
-    const val NAME = "Librespot"
-  }
+	companion object {
+		const val NAME = "Librespot"
+	}
 }

@@ -1,12 +1,12 @@
 import { Text, View, StyleSheet } from 'react-native';
-import { multiply } from 'react-native-librespot';
+import Librespot from 'react-native-librespot';
 
-const result = multiply(3, 7);
+Librespot.doAThing();
 
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text>Result: {result}</Text>
+      <Text>Result: N/A</Text>
     </View>
   );
 }
