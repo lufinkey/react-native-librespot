@@ -2,10 +2,10 @@
 @objc(LibrespotModule)
 public class LibrespotModule: NSObject {
   
-  private var core: SpeckCore
+  private var core: LibrespotCore
   
   public override init() {
-    self.core = SpeckCore()
+    self.core = LibrespotCore()
     super.init()
   }
 
