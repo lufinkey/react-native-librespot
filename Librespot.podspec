@@ -44,5 +44,5 @@ Pod::Spec.new do |s|
 		end
 	end
 
-	s.prepare_command = "./ios/build_rust.sh"
+	s.prepare_command = "./ios/build_rust.sh || exit $?"
 end
