@@ -2,8 +2,6 @@
 
 use env_logger::Env;
 use librespot::core::spotify_id::{SpotifyId, SpotifyItemType};
-use librespot::metadata::lyrics::SyncType;
-use librespot::metadata::{Artist, Lyrics, Metadata, Track};
 use librespot::playback::audio_backend;
 use librespot::playback::config::AudioFormat;
 use librespot::playback::player::{PlayerEvent, PlayerEventChannel};
@@ -23,6 +21,7 @@ use std::sync::Arc;
 mod ffi {
 	#[swift_bridge(swift_repr = "struct")]
 	struct LibrespotError {
+		kind: String,
 		message: String,
 	}
 
@@ -135,31 +134,6 @@ mod ffi {
 		event: LibrespotPlayerEvent,
 	}
 
-	#[swift_bridge(swift_repr = "struct")]
-	struct LibrespotLyrics {
-		lines: Vec<String>,
-
-		pub provider: String,
-		pub provider_display_name: String,
-		pub is_synced: bool,
-		// pub sync_type: LibrespotSyncType,
-		pub color_background: i32,
-		pub color_highlight_text: i32,
-		pub color_text: i32,
-	}
-
-	#[swift_bridge(swift_repr = "struct")]
-	pub struct LibrespotLine {
-		pub start_time_ms: String,
-		pub end_time_ms: String,
-		pub words: String,
-	}
-
-	pub enum LibrespotSyncType {
-		Unsynced,
-		LineSynced,
-	}
-
 	extern "Rust" {
 		type LibrespotCore;
 
@@ -168,18 +142,17 @@ mod ffi {
 
 		async fn login(&mut self, access_token: String) -> Result<(), LibrespotError>;
 
-		async fn get_player_event(&mut self) -> LibrespotPlayerEventResult;
+		fn player_init(&mut self);
+		fn player_deinit(&mut self);
 
-		fn init_player(&mut self);
-		fn deinit_player(&mut self);
+		async fn player_get_event(&mut self) -> LibrespotPlayerEventResult;
 
-		fn player_load_track(&mut self, track_id: String);
+		fn player_load(&mut self, track_id: String, start_playing: bool, position_ms: u32);
+		fn player_preload(&mut self, track_id: String);
 		fn player_pause(&self);
 		fn player_play(&self);
 		fn player_stop(&self);
 		fn player_seek(&self, position_ms: u32);
-
-		async fn get_lyrics(&self, track_id: String) -> Result<LibrespotLyrics, LibrespotError>;
 	}
 }
 
@@ -203,7 +176,7 @@ impl LibrespotCore {
 		}
 	}
 
-	fn init_player(&mut self) {
+	fn player_init(&mut self) {
 		let mixer = SoftMixer::open(MixerConfig::default());
 		let player = Player::new(
 			PlayerConfig::default(),
@@ -221,14 +194,15 @@ impl LibrespotCore {
 		self.channel = Some(channel);
 	}
 
-	fn deinit_player(&mut self) {
+	fn player_deinit(&mut self) {
 		if let Some(ref mut player) = self.player {
 			player.stop();
 		}
 		self.player = None;
+		self.channel = None;
 	}
 
-	async fn get_player_event(&mut self) -> ffi::LibrespotPlayerEventResult {
+	async fn player_get_event(&mut self) -> ffi::LibrespotPlayerEventResult {
 		let event = self.channel.as_mut().unwrap().recv().await.unwrap();
 		debug!("librespot got event: {:?}", event);
 		ffi::LibrespotPlayerEventResult {
@@ -362,57 +336,16 @@ impl LibrespotCore {
 		}
 	}
 
-	// async fn get_expanded_artist_info(&self, track_id: String) {
-	//     let mut id = SpotifyId::from_base62(&track_id).unwrap();
-	//     id.item_type = SpotifyItemType::Track;
-	//     let artist = Artist::get(self.session.as_ref().unwrap(), &id)
-	//         .await
-	//         .unwrap();
-	//     artist.portraits;
-	// }
-
-	async fn get_lyrics(&self, track_id: String) -> Result<ffi::LibrespotLyrics, ffi::LibrespotError> {
-		let mut id = SpotifyId::from_base62(&track_id).map_err(|_| ffi::LibrespotError {
-			message: "Invalid track id".to_string(),
-		})?;
-
-		let session = self.session.as_ref().ok_or(ffi::LibrespotError {
-			message: "No session active".to_string(),
-		})?;
-		id.item_type = SpotifyItemType::Track;
-		debug!("getting lyrics for track: {:?}", id);
-		let track_metadata = Track::get(self.session.as_ref().unwrap(), &id)
-			.await
-			.map_err(|err| ffi::LibrespotError {
-				message: format!("{:?}", err),
-			})?;
-		if !track_metadata.has_lyrics {
-			return Err(ffi::LibrespotError {
-				message: "No lyrics available".to_string(),
-			});
-		}
-		let metadata = Lyrics::get(session, &id)
-			.await
-			.map_err(|err| ffi::LibrespotError {
-				message: format!("{:?}", err),
-			})?;
-		debug!("got metadata: {:?}", metadata);
-		let lyrics = metadata.lyrics;
-		Ok(ffi::LibrespotLyrics {
-			lines: lyrics.lines.iter().map(|line| line.words.clone()).collect(),
-			provider: lyrics.provider,
-			provider_display_name: lyrics.provider_display_name,
-			is_synced: lyrics.sync_type == SyncType::LineSynced,
-			color_background: metadata.colors.background,
-			color_highlight_text: metadata.colors.highlight_text,
-			color_text: metadata.colors.text,
-		})
-	}
-
-	fn player_load_track(&mut self, track_id: String) {
+	fn player_load(&mut self, track_id: String, start_playing: bool, position_ms: u32) {
 		let mut id = SpotifyId::from_base62(&track_id).unwrap();
 		id.item_type = SpotifyItemType::Track;
-		self.player.as_mut().unwrap().load(id, true, 0);
+		self.player.as_mut().unwrap().load(id, start_playing, position_ms);
+	}
+
+	fn player_preload(&mut self, track_id: String) {
+		let mut id = SpotifyId::from_base62(&track_id).unwrap();
+		id.item_type = SpotifyItemType::Track;
+		self.player.as_mut().unwrap().preload(id);
 	}
 
 	fn player_pause(&self) {
@@ -448,9 +381,12 @@ impl LibrespotCore {
 			.connect(credentials, false)
 			.await
 			.map_err(|err| ffi::LibrespotError {
+				kind: err.kind.to_string(),
 				message: format!("{:?}", err),
 			})?;
-
+		if let Some(ref mut player) = self.player {
+			player.set_session(session.clone());
+		}
 		self.session = Some(session);
 		Ok(())
 	}
