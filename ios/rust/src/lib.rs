@@ -171,10 +171,12 @@ mod ffi {
 		async fn get_player_event(&mut self) -> LibrespotPlayerEventResult;
 
 		fn init_player(&mut self);
+		fn deinit_player(&mut self);
 
 		fn player_load_track(&mut self, track_id: String);
 		fn player_pause(&self);
 		fn player_play(&self);
+		fn player_stop(&self);
 		fn player_seek(&self, position_ms: u32);
 
 		async fn get_lyrics(&self, track_id: String) -> Result<LibrespotLyrics, LibrespotError>;
@@ -217,6 +219,13 @@ impl LibrespotCore {
 		let channel = player.get_player_event_channel();
 		self.player = Some(player);
 		self.channel = Some(channel);
+	}
+
+	fn deinit_player(&mut self) {
+		if let Some(ref mut player) = self.player {
+			player.stop();
+		}
+		self.player = None;
 	}
 
 	async fn get_player_event(&mut self) -> ffi::LibrespotPlayerEventResult {
@@ -412,6 +421,10 @@ impl LibrespotCore {
 
 	fn player_play(&self) {
 		self.player.as_ref().unwrap().play();
+	}
+
+	fn player_stop(&self) {
+		self.player.as_ref().unwrap().stop();
 	}
 
 	fn player_seek(&self, position_ms: u32) {
