@@ -79,8 +79,11 @@ android/keystores/debug.keystore
 lib/
 
 # React Native Codegen
-ios/generated
-android/generated
+/ios/generated
+/android/generated
+/ios/rust/generated
+/ios/rust/lib
+/ios/rust/target
 
 # React Native Nitro Modules
 nitrogen/
