@@ -11,9 +11,10 @@ if [ -z "$(which cargo)" ]; then
 fi
 
 LIB_FILE="libreact_native_librespot.a"
+export RUST_BACKTRACE=full
 
 cd "$(dirname "$0")/rust" || exit $?
-cargo build
+cargo build \
 	--target "x86_64-apple-ios" \
 	--target "aarch64-apple-ios" \
 	--target "aarch64-apple-ios-sim" \
