@@ -37,35 +37,31 @@ RCT_EXPORT_MODULE()
 	[_module logout];
 }
 
--(void)player_init {
+-(void)initPlayer {
 	[_module player_init:self];
 }
 
--(void)player_deinit {
+-(void)deinitPlayer {
 	[_module player_deinit];
 }
 
--(void)player_load:(NSString*)trackID startPlaying:(BOOL)startPlaying position:(double)position {
-	[_module player_loadTrackID:trackID startPlaying:startPlaying position:(NSUInteger)position];
+-(void)loadTrack:(NSString*)trackID startPlaying:(BOOL)startPlaying {
+	[_module player_loadTrackID:trackID startPlaying:startPlaying position:0];
 }
 
--(void)player_preload:(NSString*)trackID {
+-(void)preloadTrack:(NSString*)trackID {
 	[_module player_preloadTrackID:trackID];
 }
 
--(void)player_pause {
+-(void)pause {
 	[_module player_pause];
 }
 
--(void)player_play {
+-(void)play {
 	[_module player_play];
 }
 
--(void)player_stop {
-	[_module player_stop];
-}
-
--(void)player_seek:(double)positionMs {
+-(void)seek:(double)positionMs {
 	[_module player_seekTo:(NSUInteger)positionMs];
 }
 

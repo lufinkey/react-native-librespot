@@ -8,12 +8,12 @@ export interface Spec extends TurboModule {
 	login(accessToken: string, storeCredentials: boolean): Promise<void>;
 	logout(): void;
 
-	player_init(): void;
-	player_deinit(): void;
-	player_pause(): void;
-	player_play(): void;
-	player_stop(): void;
-	player_seek(position: number): void;
+	initPlayer(): void;
+	deinitPlayer(): void;
+	loadTrack(trackId: string, startPlaying: boolean): void;
+	pause(): void;
+	play(): void;
+	seek(position: number): void;
 
 	onEventPlaying: EventEmitter<{
 		play_request_id: number;
