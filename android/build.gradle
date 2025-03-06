@@ -81,11 +81,6 @@ android {
 		targetCompatibility JavaVersion.VERSION_1_8
 	}
 
-	packagingOptions {
-		exclude 'log4j2.xml'
-		exclude 'META-INF/DEPENDENCIES'
-	}
-
 	sourceSets {
 		main {
 			jniLibs.srcDirs "src/main/libs"

@@ -105,6 +105,10 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
+	packagingOptions {
+		exclude 'log4j2.xml'
+		exclude 'META-INF/DEPENDENCIES'
+	}
 }
 
 dependencies {

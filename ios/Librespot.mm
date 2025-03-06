@@ -23,7 +23,7 @@ RCT_EXPORT_MODULE()
 	[_module doAThing];
 }
 
--(void)login:(NSString*)accessToken storeCredntials:(BOOL)storeCredentials resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
+-(void)login:(NSString*)accessToken storeCredentials:(BOOL)storeCredentials resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
   [_module loginWithAccessToken:accessToken storeCredentials:storeCredentials completionHandler:^(NSError* error) {
 		if(error != nil) {
 			reject([NSString stringWithFormat:@"SpotifyError:%li", error.code], error.description, error);

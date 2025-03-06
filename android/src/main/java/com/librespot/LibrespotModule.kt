@@ -14,8 +14,6 @@ import java.io.File
 import java.io.IOException
 import java.lang.ref.WeakReference
 import java.util.Locale
-import kotlin.io.path.Path
-import kotlin.io.path.deleteIfExists
 
 
 @ReactModule(name = LibrespotModule.NAME)
@@ -70,7 +68,7 @@ class LibrespotModule(reactContext: ReactApplicationContext) :
 			}
 			promise.resolve(null)
 		} catch(error: Exception) {
-			promise.reject(error);
+			promise.reject(error)
 		}
 	}
 
