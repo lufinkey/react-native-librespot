@@ -12,11 +12,7 @@ npm install react-native-librespot
 
 
 ```js
-import { multiply } from 'react-native-librespot';
-
-// ...
-
-const result = multiply(3, 7);
+import Librespot from 'react-native-librespot';
 ```
 
 
