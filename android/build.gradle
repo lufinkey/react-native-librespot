@@ -81,6 +81,11 @@ android {
 		targetCompatibility JavaVersion.VERSION_1_8
 	}
 
+	packagingOptions {
+		exclude 'log4j2.xml'
+		exclude 'META-INF/DEPENDENCIES'
+	}
+
 	sourceSets {
 		main {
 			jniLibs.srcDirs "src/main/libs"
@@ -110,13 +115,13 @@ dependencies {
 	implementation "com.facebook.react:react-android"
 	implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
-	implementation 'xyz.gianlu.librespot:librespot-decoder-api:1.6.5'
-	implementation 'xyz.gianlu.librespot:librespot-sink-api:1.6.5'
 	implementation('xyz.gianlu.librespot:librespot-player:1.6.5:thin') {
 		exclude group: 'xyz.gianlu.librespot', module: 'librespot-sink'
 		exclude group: 'com.lmax', module: 'disruptor'
 		exclude group: 'org.apache.logging.log4j'
 	}
+	implementation 'xyz.gianlu.librespot:librespot-decoder-api:1.6.5'
+	implementation 'xyz.gianlu.librespot:librespot-sink-api:1.6.5'
 
 	implementation 'uk.uuid.slf4j:slf4j-android:1.7.30-0'
 
