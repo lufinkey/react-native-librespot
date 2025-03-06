@@ -51,13 +51,13 @@ public class LibrespotWrapper: NSObject {
 	}
 
 	@objc(player_loadTrackID:startPlaying:position:)
-	public func player_load(track_id: String, start_playing: Bool, position_ms: UInt32) {
-		core.player_load(track_id,start_playing,position_ms);
+	public func player_load(track_uri: String, start_playing: Bool, position_ms: UInt32) {
+		core.player_load(track_uri,start_playing,position_ms);
 	}
 
 	@objc(player_preloadTrackID:)
-	public func player_preload(track_id: String) {
-		core.player_preload(track_id);
+	public func player_preload(track_uri: String) {
+		core.player_preload(track_uri);
 	}
 
 	@objc public func player_stop() {

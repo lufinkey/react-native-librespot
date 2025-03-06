@@ -33,17 +33,17 @@ mod ffi {
 		// Fired when the player is stopped (e.g. by issuing a "stop" command to the player).
 		Stopped {
 			play_request_id: u64,
-			track_id: String,
+			track_uri: String,
 		},
 		// The player is delayed by loading a track.
 		Loading {
 			play_request_id: u64,
-			track_id: String,
+			track_uri: String,
 			position_ms: u32,
 		},
 		// The player is preloading a track.
 		Preloading {
-			track_id: String,
+			track_uri: String,
 		},
 		// The player is playing a track.
 		// This event is issued at the start of playback of whenever the position must be communicated
@@ -54,31 +54,31 @@ mod ffi {
 		// after a buffer-underrun
 		Playing {
 			play_request_id: u64,
-			track_id: String,
+			track_uri: String,
 			position_ms: u32,
 		},
 		// The player entered a paused state.
 		Paused {
 			play_request_id: u64,
-			track_id: String,
+			track_uri: String,
 			position_ms: u32,
 		},
 		// The player thinks it's a good idea to issue a preload command for the next track now.
 		// This event is intended for use within spirc.
 		TimeToPreloadNextTrack {
 			play_request_id: u64,
-			track_id: String,
+			track_uri: String,
 		},
 		// The player reached the end of a track.
 		// This event is intended for use within spirc. Spirc will respond by issuing another command.
 		EndOfTrack {
 			play_request_id: u64,
-			track_id: String,
+			track_uri: String,
 		},
 		// The player was unable to load the requested track.
 		Unavailable {
 			play_request_id: u64,
-			track_id: String,
+			track_uri: String,
 		},
 		// The mixer volume was set to a new level.
 		VolumeChanged {
@@ -86,18 +86,18 @@ mod ffi {
 		},
 		PositionCorrection {
 			play_request_id: u64,
-			track_id: String,
+			track_uri: String,
 			position_ms: u32,
 		},
 		Seeked {
 			play_request_id: u64,
-			track_id: String,
+			track_uri: String,
 			position_ms: u32,
 		},
 		TrackChanged {
 			// TODO richer track info
 			// audio_item: Box<AudioItem>,
-			track_id: String,
+			track_uri: String,
 			duration_ms: u32,
 		},
 		SessionConnected {
@@ -311,7 +311,7 @@ impl LibrespotCore {
 				} => ffi::LibrespotPlayerEvent::Playing {
 					play_request_id,
 					position_ms,
-					track_id: track_id.to_base62().unwrap(),
+					track_uri: track_id.to_uri().unwrap(),
 				},
 				PlayerEvent::Paused {
 					play_request_id,
@@ -320,24 +320,24 @@ impl LibrespotCore {
 				} => ffi::LibrespotPlayerEvent::Paused {
 					play_request_id,
 					position_ms,
-					track_id: track_id.to_base62().unwrap(),
+					track_uri: track_id.to_uri().unwrap(),
 				},
 				PlayerEvent::TimeToPreloadNextTrack {
 					play_request_id,
 					track_id,
 				} => ffi::LibrespotPlayerEvent::TimeToPreloadNextTrack {
 					play_request_id,
-					track_id: track_id.to_base62().unwrap(),
+					track_uri: track_id.to_uri().unwrap(),
 				},
 				PlayerEvent::EndOfTrack {
 					play_request_id,
 					track_id,
 				} => ffi::LibrespotPlayerEvent::EndOfTrack {
 					play_request_id,
-					track_id: track_id.to_base62().unwrap(),
+					track_uri: track_id.to_uri().unwrap(),
 				},
 				PlayerEvent::TrackChanged { audio_item } => ffi::LibrespotPlayerEvent::TrackChanged {
-					track_id: audio_item.track_id.to_base62().unwrap(),
+					track_uri: audio_item.track_id.to_uri().unwrap(),
 					duration_ms: audio_item.duration_ms,
 				},
 				PlayerEvent::SessionConnected {
@@ -375,7 +375,7 @@ impl LibrespotCore {
 					track_id,
 				} => ffi::LibrespotPlayerEvent::Stopped {
 					play_request_id,
-					track_id: track_id.to_base62().unwrap(),
+					track_uri: track_id.to_uri().unwrap(),
 				},
 				PlayerEvent::Loading {
 					play_request_id,
@@ -383,7 +383,7 @@ impl LibrespotCore {
 					position_ms,
 				} => ffi::LibrespotPlayerEvent::Loading {
 					play_request_id,
-					track_id: track_id.to_base62().unwrap(),
+					track_uri: track_id.to_uri().unwrap(),
 					position_ms,
 				},
 				PlayerEvent::Seeked {
@@ -392,7 +392,7 @@ impl LibrespotCore {
 					position_ms,
 				} => ffi::LibrespotPlayerEvent::Seeked {
 					play_request_id,
-					track_id: track_id.to_base62().unwrap(),
+					track_uri: track_id.to_uri().unwrap(),
 					position_ms,
 				},
 				PlayerEvent::PositionCorrection {
@@ -401,11 +401,11 @@ impl LibrespotCore {
 					position_ms,
 				} => ffi::LibrespotPlayerEvent::PositionCorrection {
 					play_request_id,
-					track_id: track_id.to_base62().unwrap(),
+					track_uri: track_id.to_uri().unwrap(),
 					position_ms,
 				},
 				PlayerEvent::Preloading { track_id } => ffi::LibrespotPlayerEvent::Preloading {
-					track_id: track_id.to_base62().unwrap(),
+					track_uri: track_id.to_uri().unwrap(),
 				},
 				PlayerEvent::SessionClientChanged {
 					client_id,
@@ -423,7 +423,7 @@ impl LibrespotCore {
 					track_id,
 				} => ffi::LibrespotPlayerEvent::Unavailable {
 					play_request_id,
-					track_id: track_id.to_base62().unwrap(),
+					track_uri: track_id.to_uri().unwrap(),
 				},
 				PlayerEvent::PlayRequestIdChanged { play_request_id } => {
 					ffi::LibrespotPlayerEvent::PlayRequestIdChanged { play_request_id }
@@ -432,14 +432,14 @@ impl LibrespotCore {
 		}
 	}
 
-	fn player_load(&mut self, track_id: String, start_playing: bool, position_ms: u32) {
-		let mut id = SpotifyId::from_base62(&track_id).unwrap();
+	fn player_load(&mut self, track_uri: String, start_playing: bool, position_ms: u32) {
+		let mut id = SpotifyId::from_uri(&track_uri).unwrap();
 		id.item_type = SpotifyItemType::Track;
 		self.player.as_mut().unwrap().load(id, start_playing, position_ms);
 	}
 
-	fn player_preload(&mut self, track_id: String) {
-		let mut id = SpotifyId::from_base62(&track_id).unwrap();
+	fn player_preload(&mut self, track_uri: String) {
+		let mut id = SpotifyId::from_uri(&track_uri).unwrap();
 		id.item_type = SpotifyItemType::Track;
 		self.player.as_mut().unwrap().preload(id);
 	}

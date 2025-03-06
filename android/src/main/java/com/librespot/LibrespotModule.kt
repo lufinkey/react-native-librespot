@@ -2,12 +2,16 @@ package com.librespot
 
 import android.content.Context
 import android.util.Log
+import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
+import com.facebook.react.bridge.WritableMap
 import com.facebook.react.module.annotations.ReactModule
 import com.spotify.connectstate.Connect
 import xyz.gianlu.librespot.android.sink.AndroidSinkOutput
+import xyz.gianlu.librespot.audio.MetadataWrapper
 import xyz.gianlu.librespot.core.Session
+import xyz.gianlu.librespot.metadata.PlayableId
 import xyz.gianlu.librespot.player.Player
 import xyz.gianlu.librespot.player.PlayerConfiguration
 import java.io.File
@@ -18,7 +22,7 @@ import java.util.Locale
 
 @ReactModule(name = LibrespotModule.NAME)
 class LibrespotModule(reactContext: ReactApplicationContext) :
-	NativeLibrespotSpec(reactContext) {
+	NativeLibrespotSpec(reactContext), Player.EventsListener {
 
 	@Volatile
 	private var session: WeakReference<Session>
@@ -107,11 +111,13 @@ class LibrespotModule(reactContext: ReactApplicationContext) :
 
 		val player = Player(configuration, this.session.get()!!)
 		this.player = WeakReference(player)
+		player.addEventsListener(this)
 	}
 
 	override fun deinitPlayer() {
 		val p = this.player?.get();
 		if (p != null) {
+			p.removeEventsListener(this)
 			Thread {
 				p.close()
 			}.start()
@@ -139,6 +145,94 @@ class LibrespotModule(reactContext: ReactApplicationContext) :
 
 	override fun seek(positionMs: Double) {
 		player?.get()?.seek(positionMs.toInt());
+	}
+
+	override fun onContextChanged(player: Player, newUri: String) {
+		val map = Arguments.createMap()
+		map.putString("context_uri", newUri)
+		this.emitOnContextChanged(map)
+	}
+
+	override fun onTrackChanged(
+		player: Player,
+		id: PlayableId,
+		metadata: MetadataWrapper?,
+		userInitiated: Boolean
+	) {
+		val map = Arguments.createMap()
+		map.putString("track_uri", id.toSpotifyUri())
+		val duration = metadata?.duration()
+		if (duration != null) {
+			map.putInt("duration", duration);
+		}
+		this.emitOnTrackChanged(map)
+	}
+
+	override fun onPlaybackEnded(player: Player) {
+		TODO("Not yet implemented")
+	}
+
+	override fun onPlaybackPaused(player: Player, trackTime: Long) {
+		val map = Arguments.createMap()
+		val trackURI = player.currentPlayable()?.toSpotifyUri()
+		map.putString("track_uri", trackURI)
+		map.putLong("position", trackTime)
+		emitOnPaused(map)
+	}
+
+	override fun onPlaybackResumed(player: Player, trackTime: Long) {
+		val map = Arguments.createMap()
+		val trackURI = player.currentPlayable()?.toSpotifyUri()
+		map.putString("track_uri", trackURI)
+		map.putLong("position", trackTime)
+		emitOnPlaying(map)
+	}
+
+	override fun onPlaybackFailed(player: Player, e: java.lang.Exception) {
+		val map = Arguments.createMap()
+		map.putString("track_uri", player.currentPlayable()?.toSpotifyUri())
+		map.putString("reason", e.message)
+		emitOnPlaybackFailed(map)
+	}
+
+	override fun onTrackSeeked(player: Player, trackTime: Long) {
+		val map = Arguments.createMap()
+		map.putString("track_uri", player.currentPlayable()?.toSpotifyUri())
+		map.putLong("position", trackTime)
+		emitOnPlaybackFailed(map)
+	}
+
+	override fun onMetadataAvailable(player: Player, metadata: MetadataWrapper) {
+		TODO("Not yet implemented")
+	}
+
+	override fun onPlaybackHaltStateChanged(player: Player, halted: Boolean, trackTime: Long) {
+		TODO("Not yet implemented")
+	}
+
+	override fun onInactiveSession(player: Player, timeout: Boolean) {
+		TODO("Not yet implemented")
+	}
+
+	override fun onVolumeChanged(player: Player, volume: Float) {
+		TODO("Not yet implemented")
+	}
+
+	override fun onPanicState(player: Player) {
+		TODO("Not yet implemented")
+	}
+
+	override fun onStartedLoading(player: Player) {
+		val map = Arguments.createMap()
+		val trackURI = player.currentPlayable()?.toSpotifyUri()
+		map.putString("track_uri", trackURI)
+		val position = player.time()
+		map.putInt("position", position)
+		emitOnLoading(map)
+	}
+
+	override fun onFinishedLoading(player: Player) {
+		TODO("Not yet implemented")
 	}
 
 	companion object {

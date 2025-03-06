@@ -15,105 +15,49 @@ export interface Spec extends TurboModule {
 	play(): void;
 	seek(position: number): void;
 
-	onEventPlaying: EventEmitter<{
-		play_request_id: number;
-		track_id: string;
-		position: number;
+	onPlaying: EventEmitter<{
+		//play_request_id: number;
+		track_uri: string,
+		position: number,
 	}>;
 
-	onEventPaused: EventEmitter<{
-		play_request_id: number;
-		track_id: string;
-		position: number;
+	onPaused: EventEmitter<{
+		//play_request_id: number;
+		track_uri: string,
+		position: number,
 	}>;
 
-	onEventStopped: EventEmitter<{
-		play_request_id: number;
-		track_id: string;
+	onStopped: EventEmitter<{
+		//play_request_id: number;
+		track_uri: string,
 	}>;
 
-	onEventSeeked: EventEmitter<{
-		play_request_id: number;
-		track_id: string;
-		position: number;
+	onSeeked: EventEmitter<{
+		//play_request_id: number;
+		track_uri: string,
+		position: number,
 	}>;
 
-	onEventLoading: EventEmitter<{
-		play_request_id: number;
-		track_id: string;
-		position: number;
+	onLoading: EventEmitter<{
+		//play_request_id: number;
+		track_uri: string,
+		position: number,
 	}>;
 
-	onEventPreloading: EventEmitter<{
-		track_id: string;
+	onEndOfTrack: EventEmitter<{
+		//play_request_id: number,
+		track_uri: string,
 	}>;
 
-	onEventTimeToPreloadNextTrack: EventEmitter<{
-		play_request_id: number;
-		track_id: string;
+	onTrackChanged: EventEmitter<{
+		track_uri: string,
+		duration: number,
 	}>;
 
-	onEventEndOfTrack: EventEmitter<{
-		play_request_id: number;
-		track_id: string;
-	}>;
-
-	onEventVolumeChanged: EventEmitter<{
-		volume: number;
-	}>;
-
-	onEventPositionCorrection: EventEmitter<{
-		play_request_id: number;
-		track_id: string;
-		position: number;
-	}>;
-
-	onEventTrackChanged: EventEmitter<{
-		track_id: string;
-		duration: number;
-	}>;
-
-	onEventShuffleChanged: EventEmitter<{
-		shuffle: boolean;
-	}>;
-
-	onEventRepeatChanged: EventEmitter<{
-		context: string;
-		track: string;
-	}>;
-
-	onEventAutoPlayChanged: EventEmitter<{
-		auto_play: boolean;
-	}>;
-
-	onEventFilterExplicitContentChanged: EventEmitter<{
-		filter: boolean;
-	}>;
-
-	onEventPlayRequestIdChanged: EventEmitter<{
-		play_request_id: number;
-	}>;
-
-	onEventSessionConnected: EventEmitter<{
-		connection_id: string;
-		user_name: string;
-	}>;
-
-	onEventSessionDisconnected: EventEmitter<{
-		connection_id: string;
-		user_name: string;
-	}>;
-
-	onEventSessionClientChanged: EventEmitter<{
-		client_id: string;
-		client_name: string;
-		client_brand_name: string;
-		client_model_name: string;
-	}>;
-
-	onEventUnavailable: EventEmitter<{
-		play_request_id: number;
-		track_id: string;
+	onPlaybackFailed: EventEmitter<{
+		//play_request_id: number,
+		track_uri: string,
+		reason: string,
 	}>;
 }
 

@@ -13,7 +13,7 @@ RCT_EXPORT_MODULE()
 -(id)init {
 	NSLog(@"Librespot init");
 	if(self = [super init]) {
-    	_module = [LibrespotWrapper new];
+		_module = [LibrespotWrapper new];
 	}
 	return self;
 }
@@ -65,84 +65,98 @@ RCT_EXPORT_MODULE()
 	[_module player_seekTo:(NSUInteger)positionMs];
 }
 
+// TODO add context changed
+
 - (void)onEventPlaying:(NSDictionary<NSString*,id>*)data {
-    [self emitOnEventPlaying:data];
+	[self emitOnPlaying:data];
 }
 
 - (void)onEventPaused:(NSDictionary<NSString*,id>*)data {
-    [self emitOnEventPaused:data];
+	[self emitOnPaused:data];
 }
 
 - (void)onEventStopped:(NSDictionary<NSString*,id>*)data {
-    [self emitOnEventStopped:data];
+	[self emitOnStopped:data];
 }
 
 - (void)onEventSeeked:(NSDictionary<NSString*,id>*)data {
-    [self emitOnEventSeeked:data];
+	[self emitOnSeeked:data];
 }
 
 - (void)onEventLoading:(NSDictionary<NSString*,id>*)data {
-    [self emitOnEventLoading:data];
+	[self emitOnLoading:data];
 }
 
 - (void)onEventPreloading:(NSDictionary<NSString*,id>*)data {
-    [self emitOnEventPreloading:data];
+	// TODO implement cross platform
+	//[self emitOnPreloading:data];
 }
 
 - (void)onEventTimeToPreloadNextTrack:(NSDictionary<NSString*,id>*)data {
-    [self emitOnEventTimeToPreloadNextTrack:data];
+	// TODO implement cross platform
+	//[self emitOnTimeToPreloadNextTrack:data];
 }
 
 - (void)onEventEndOfTrack:(NSDictionary<NSString*,id>*)data {
-    [self emitOnEventEndOfTrack:data];
+	[self emitOnEndOfTrack:data];
 }
 
 - (void)onEventVolumeChanged:(NSDictionary<NSString*,id>*)data {
-    [self emitOnEventVolumeChanged:data];
+	// TODO implement cross platform
+	//[self emitOnVolumeChanged:data];
 }
 
 - (void)onEventPositionCorrection:(NSDictionary<NSString*,id>*)data {
-    [self emitOnEventPositionCorrection:data];
+	// TODO implement cross platform
+	//[self emitOnPositionCorrection:data];
 }
 
 - (void)onEventTrackChanged:(NSDictionary<NSString*,id>*)data {
-    [self emitOnEventTrackChanged:data];
+	[self emitOnTrackChanged:data];
 }
 
 - (void)onEventShuffleChanged:(NSDictionary<NSString*,id>*)data {
-    [self emitOnEventShuffleChanged:data];
+	// TODO implement cross platform
+	//[self emitOnShuffleChanged:data];
 }
 
 - (void)onEventRepeatChanged:(NSDictionary<NSString*,id>*)data {
-    [self emitOnEventRepeatChanged:data];
+	// TODO implement cross platform
+	//[self emitOnRepeatChanged:data];
 }
 
 - (void)onEventAutoPlayChanged:(NSDictionary<NSString*,id>*)data {
-    [self emitOnEventAutoPlayChanged:data];
+	// TODO implement cross platform
+	//[self emitOnAutoPlayChanged:data];
 }
 
 - (void)onEventFilterExplicitContentChanged:(NSDictionary<NSString*,id>*)data {
-    [self emitOnEventFilterExplicitContentChanged:data];
+	// TODO implement cross platform
+	//[self emitOnFilterExplicitContentChanged:data];
 }
 
 - (void)onEventPlayRequestIdChanged:(NSDictionary<NSString*,id>*)data {
-    [self emitOnEventPlayRequestIdChanged:data];
+	// TODO implement cross platform
+	//[self emitOnPlayRequestIdChanged:data];
 }
 
 - (void)onEventSessionConnected:(NSDictionary<NSString*,id>*)data {
-    [self emitOnEventSessionConnected:data];
+	// TODO implement cross platform
+	//[self emitOnSessionConnected:data];
 }
 
 - (void)onEventSessionDisconnected:(NSDictionary<NSString*,id>*)data {
-    [self emitOnEventSessionDisconnected:data];
+	// TODO implement cross platform
+	//[self emitOnSessionDisconnected:data];
 }
 
 - (void)onEventSessionClientChanged:(NSDictionary<NSString*,id>*)data {
-    [self emitOnEventSessionClientChanged:data];
+	// TODO implement cross platform
+	//[self emitOnSessionClientChanged:data];
 }
 
-- (void)onEventUnavailable:(NSDictionary<NSString*,id>*)data {
-    [self emitOnEventUnavailable:data];
+- (void)onEventPlaybackFailed:(NSDictionary<NSString*,id>*)data {
+	[self emitOnPlaybackFailed:data];
 }
 
 -(NSDictionary*)constantsToExport {
