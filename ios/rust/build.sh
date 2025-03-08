@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Code adapted from https://ospfranco.com/post/2024/05/08/react-native-rust-module-guide/
->&2 echo "Building rust"
 
 if [ -z "$(which cargo)" ]; then
 	>&2 echo "Missing cargo command"
@@ -19,9 +18,11 @@ export RUST_BACKTRACE=full
 
 cd "$(dirname "$0")" || exit $?
 
+# install bindgen-cli
 >&2 echo "Installing bindgen CLI"
 cargo install --force bindgen-cli || exit $?
 
+# build rust project
 >&2 echo "Building rust project"
 cargo build \
 	--target "x86_64-apple-ios" \
@@ -29,6 +30,7 @@ cargo build \
 	--target "aarch64-apple-ios-sim" \
 	--release || exit $?
 
+# create combined ios simulator lib
 >&2 echo "Creating combined ios simulator lib"
 mkdir -p lib || exit $?
 mkdir -p lib/ios_simulator || exit $?
@@ -37,6 +39,7 @@ if [ -f "lib/ios_simulator/$LIB_FILE" ]; then
 fi
 lipo -create "target/x86_64-apple-ios/release/$LIB_FILE" "target/aarch64-apple-ios-sim/release/$LIB_FILE" -output "lib/ios_simulator/$LIB_FILE" || exit $?
 
+# create xcframework
 >&2 echo "Generating xcframework"
 if [ -d "lib/$XCFRAMEWORK_FILE" ]; then
 	rm -rf "lib/$XCFRAMEWORK_FILE" || exit $?

@@ -45,5 +45,5 @@ Pod::Spec.new do |s|
 		end
 	end
 
-	s.prepare_command = "./ios/rust/rebuild.sh || exit $?"
+	s.prepare_command = "./ios/rust/build.sh || exit $?"
 end

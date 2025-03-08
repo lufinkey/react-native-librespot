@@ -23,7 +23,7 @@ public class LibrespotWrapper: NSObject {
 		NSLog("We're calling a swift function!!!!");
 	}
 
-	@objc(loginWithAccessToken:storeCredentials:)
+	@objc(loginWithAccessToken:storeCredentials:completionHandler:)
 	public func login(accessToken: String, storeCredentials: Bool) async throws {
 		try await core.login_with_accesstoken(accessToken, storeCredentials);
 	}
