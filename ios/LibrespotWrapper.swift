@@ -71,7 +71,8 @@ public class LibrespotWrapper: NSObject {
 		core.player_pause();
 	}
 
-	@objc public func player_seekTo(_ position_ms: UInt32) {
+	@objc(player_seekTo:)
+	public func player_seekTo(_ position_ms: UInt32) {
 		core.player_seek(position_ms);
 	}
 
