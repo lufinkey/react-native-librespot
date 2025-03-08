@@ -104,10 +104,9 @@ class LibrespotPlayerEventReceiver {
 				self.listener.onEventShuffleChanged([
 					"shuffle": shuffle
 				]);
-			case .RepeatChanged(let context, let track):
+			case .RepeatChanged(let `repeat`):
 				listener.onEventRepeatChanged([
-					"context": context,
-					"track": track
+					"repeat": `repeat`
 				]);
 			case .AutoPlayChanged(let autoPlay):
 				self.listener.onEventAutoPlayChanged([
