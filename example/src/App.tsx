@@ -7,10 +7,19 @@ export default function App() {
 	return (
 		<View style={styles.container}>
 			<Text>Result: N/A</Text>
+			<TouchableOpacity onPress={logInToSpotify}>Login</TouchableOpacity>
 			<TouchableOpacity onPress={loadSong1}>Load Song 1</TouchableOpacity>
 			<TouchableOpacity onPress={loadSong2}>Load Song 2</TouchableOpacity>
 		</View>
 	);
+}
+
+async function logInToSpotify() {
+	try {
+		await Librespot.login();
+	} catch(error) {
+		console.error(error);
+	}
 }
 
 function loadSong1() {
