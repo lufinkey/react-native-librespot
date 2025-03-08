@@ -32,7 +32,8 @@ public class LibrespotWrapper: NSObject {
 		core.logout();
 	}
 
-	@objc public func player_init(_ listener: LibrespotPlayerEventListener) {
+	@objc(player_init:)
+	public func player_init(_ listener: LibrespotPlayerEventListener) {
 		let initted = core.player_init();
 		if(!initted) {
 			return;
@@ -44,7 +45,8 @@ public class LibrespotWrapper: NSObject {
 		}
 	}
 
-	@objc public func player_deinit() {
+	@objc
+	public func player_deinit() {
 		self.eventReceiver?.dispose();
 		self.eventReceiver = nil;
 		core.player_deinit();
@@ -77,7 +79,8 @@ public class LibrespotWrapper: NSObject {
 		core.player_seek(position_ms);
 	}
 
-	@objc public func constantsToExport() -> [String: Any]! {
+	@objc
+	public func constantsToExport() -> [String: Any]! {
 		return [:];
 	}
 }
