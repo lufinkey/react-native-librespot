@@ -7,6 +7,7 @@
 
 @implementation Librespot {
 	LibrespotWrapper* _module;
+	BOOL _storeCredentials;
 }
 RCT_EXPORT_MODULE()
 
@@ -14,6 +15,7 @@ RCT_EXPORT_MODULE()
 	NSLog(@"Librespot init");
 	if(self = [super init]) {
 		_module = [LibrespotWrapper new];
+		_storeCredentials = YES;
 	}
 	return self;
 }
@@ -23,8 +25,16 @@ RCT_EXPORT_MODULE()
 	[_module doAThing];
 }
 
--(void)login:(NSString*)accessToken storeCredentials:(BOOL)storeCredentials resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
-  [_module loginWithAccessToken:accessToken storeCredentials:storeCredentials completionHandler:^(NSError* error) {
+-(void)login:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
+	reject(@"NotImplemented", @"Sorry");
+}
+
+-(void)loginWithUsername:(NSString*)username password:(NSString*)password resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
+	reject(@"NotImplemented", @"I haven't done this yet");
+}
+
+-(void)loginWithAccessToken:(NSString*)accessToken resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
+  [_module loginWithAccessToken:accessToken storeCredentials:_storeCredentials completionHandler:^(NSError* error) {
 		if(error != nil) {
 			reject([NSString stringWithFormat:@"SpotifyError:%li", error.code], error.description, error);
 		} else {
@@ -45,12 +55,12 @@ RCT_EXPORT_MODULE()
 	[_module player_deinit];
 }
 
--(void)loadTrack:(NSString*)trackID startPlaying:(BOOL)startPlaying {
-	[_module player_loadTrackID:trackID startPlaying:startPlaying position:0];
+-(void)loadTrack:(NSString*)trackURI startPlaying:(BOOL)startPlaying {
+	[_module player_loadTrackURI:trackURI startPlaying:startPlaying position:0];
 }
 
 -(void)preloadTrack:(NSString*)trackID {
-	[_module player_preloadTrackID:trackID];
+	[_module player_preloadTrackURI:trackID];
 }
 
 -(void)pause {

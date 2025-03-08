@@ -24,15 +24,14 @@ public class LibrespotWrapper: NSObject {
 	}
 
 	@objc public func login(accessToken: String, storeCredentials: Bool) async throws {
-		try await core.login(accessToken, storeCredentials);
+		try await core.login_with_accesstoken(accessToken, storeCredentials);
 	}
 
 	@objc public func logout() {
 		core.logout();
 	}
 
-	@objc(player_init:)
-	public func player_init(_ listener: LibrespotPlayerEventListener) {
+	@objc public func player_init(_ listener: LibrespotPlayerEventListener) {
 		let initted = core.player_init();
 		if(!initted) {
 			return;
@@ -50,14 +49,14 @@ public class LibrespotWrapper: NSObject {
 		core.player_deinit();
 	}
 
-	@objc(player_loadTrackID:startPlaying:position:)
-	public func player_load(track_uri: String, start_playing: Bool, position_ms: UInt32) {
-		core.player_load(track_uri,start_playing,position_ms);
+	@objc(player_loadTrackURI:startPlaying:position:)
+	public func player_load(trackURI: String, startPlaying: Bool, position: UInt32) {
+		core.player_load(trackURI,startPlaying,position);
 	}
 
-	@objc(player_preloadTrackID:)
-	public func player_preload(track_uri: String) {
-		core.player_preload(track_uri);
+	@objc(player_preloadTrackURI:)
+	public func player_preload(trackURI: String) {
+		core.player_preload(trackURI);
 	}
 
 	@objc public func player_stop() {
@@ -72,13 +71,11 @@ public class LibrespotWrapper: NSObject {
 		core.player_pause();
 	}
 
-	@objc(player_seekTo:)
-	public func player_seek(position_ms: UInt32) {
+	@objc public func player_seekTo(_ position_ms: UInt32) {
 		core.player_seek(position_ms);
 	}
 
-	@objc
-	public func constantsToExport() -> [String: Any]! {
+	@objc public func constantsToExport() -> [String: Any]! {
 		return [:];
 	}
 }

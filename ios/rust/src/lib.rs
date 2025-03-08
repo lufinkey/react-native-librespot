@@ -146,7 +146,7 @@ mod ffi {
 			audio_cache_path: Option<String>,
 		) -> LibrespotCore;
 
-		async fn login(&mut self, access_token: String, store_credentials: bool) -> Result<(), LibrespotError>;
+		async fn login_with_accesstoken(&mut self, access_token: String, store_credentials: bool) -> Result<(), LibrespotError>;
 		fn logout(&mut self);
 
 		fn player_init(&mut self) -> bool;
@@ -222,7 +222,7 @@ impl LibrespotCore {
 		}
 	}
 
-	async fn login(&mut self, access_token: String, store_credentials: bool) -> Result<(), ffi::LibrespotError> {
+	async fn login_with_accesstoken(&mut self, access_token: String, store_credentials: bool) -> Result<(), ffi::LibrespotError> {
 		// let mut cache_dir = env::temp_dir();
 		// cache_dir.push("spotty-cache");
 		//

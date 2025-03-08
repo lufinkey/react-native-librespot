@@ -5,12 +5,14 @@ import type { EventEmitter } from 'react-native/Libraries/Types/CodegenTypes';
 export interface Spec extends TurboModule {
 	doAThing(): void;
 
-	login(accessToken: string, storeCredentials: boolean): Promise<void>;
+	login(): Promise<void>;
+	loginWithUsernamePassword(username: string, password: string): Promise<void>;
+	loginWithAccessToken(accessToken: string): Promise<void>;
 	logout(): void;
 
 	initPlayer(): void;
 	deinitPlayer(): void;
-	loadTrack(trackId: string, startPlaying: boolean): void;
+	loadTrack(trackURI: string, startPlaying: boolean): void;
 	pause(): void;
 	play(): void;
 	seek(position: number): void;

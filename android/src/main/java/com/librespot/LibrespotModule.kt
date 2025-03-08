@@ -1,13 +1,17 @@
 package com.librespot
 
+import android.R.attr
 import android.content.Context
 import android.util.Log
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.WritableMap
 import com.facebook.react.module.annotations.ReactModule
 import com.spotify.connectstate.Connect
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import xyz.gianlu.librespot.android.sink.AndroidSinkOutput
 import xyz.gianlu.librespot.audio.MetadataWrapper
 import xyz.gianlu.librespot.core.Session
@@ -37,7 +41,7 @@ class LibrespotModule(reactContext: ReactApplicationContext) :
 		val sharedPrefs = reactContext.getSharedPreferences("librespot", Context.MODE_PRIVATE)
 		this.shuffle = sharedPrefs.getBoolean("shuffle", false)
 		this.storeCredentials = true
-		this.session = WeakReference(createSession(reactContext, this.storeCredentials, null))
+		this.session = WeakReference(createInitialSession(reactContext, this.storeCredentials))
 	}
 
 
@@ -51,28 +55,58 @@ class LibrespotModule(reactContext: ReactApplicationContext) :
 		Log.d(NAME, "We called a native function")
 	}
 
-	override fun login(accessToken: String, storeCredentials: Boolean, promise: Promise) {
+	override fun login(promise: Promise) {
+		CoroutineScope(Dispatchers.IO).launch {
+			try {
+				loginAsync()
+				promise.resolve(null)
+			} catch (e: Exception) {
+				promise.reject("SpotifyLoginError", e)
+			}
+		}
+	}
+
+	private suspend fun loginAsync() {
+		val session = createSessionWithOAuth(reactApplicationContext, this.storeCredentials);
+		loginWithSession(session)
+	}
+
+	override fun loginWithUsernamePassword(username: String, password: String, promise: Promise) {
 		try {
-			val session = createSession(reactApplicationContext, storeCredentials, accessToken);
-			val oldSession = this.session.get();
-			val hadPlayer = this.player?.get() != null;
-			deinitPlayer()
-			if(oldSession != null) {
-				Thread {
-					try {
-						oldSession.close()
-					} catch (ignored: IOException) {
-					}
-				}.start()
-			}
-			this.session = WeakReference(session)
-			this.storeCredentials = storeCredentials
-			if(hadPlayer) {
-				initPlayer()
-			}
+			val session = createSessionWithUsernamePassword(reactApplicationContext, username, password, this.storeCredentials);
+			loginWithSession(session)
 			promise.resolve(null)
 		} catch(error: Exception) {
 			promise.reject(error)
+		}
+	}
+
+	override fun loginWithAccessToken(accessToken: String, promise: Promise) {
+		try {
+			val session = createSessionWithAccessToken(reactApplicationContext, accessToken, this.storeCredentials);
+			loginWithSession(session)
+			promise.resolve(null)
+		} catch(error: Exception) {
+			promise.reject(error)
+		}
+	}
+
+	private fun loginWithSession(session: Session) {
+		val oldSession = this.session.get();
+		val hadPlayer = this.player?.get() != null;
+		deinitPlayer();
+		if(oldSession != null) {
+			Thread {
+				try {
+					oldSession.close()
+				} catch (ignored: IOException) {
+				}
+			}.start()
+		}
+		this.session = WeakReference(session)
+		this.storeCredentials = storeCredentials
+		if(hadPlayer) {
+			initPlayer()
 		}
 	}
 
@@ -93,7 +127,7 @@ class LibrespotModule(reactContext: ReactApplicationContext) :
 				}
 			}.start()
 		}
-		this.session = WeakReference(createSession(reactApplicationContext, false, null))
+		this.session = WeakReference(createInitialSession(reactApplicationContext, false))
 		if (hadPlayer) {
 			initPlayer()
 		}
@@ -125,10 +159,9 @@ class LibrespotModule(reactContext: ReactApplicationContext) :
 		this.player = null
 	}
 
-	override fun loadTrack(trackId: String, startPlaying: Boolean) {
+	override fun loadTrack(trackURI: String, startPlaying: Boolean) {
 		val player = this.player?.get()
 		if (player != null) {
-			val trackURI = "spotify:track:$trackId"
 			player.load(trackURI, startPlaying, this.shuffle);
 		} else {
 			Log.e(NAME, "player has not been initialized");
@@ -150,7 +183,8 @@ class LibrespotModule(reactContext: ReactApplicationContext) :
 	override fun onContextChanged(player: Player, newUri: String) {
 		val map = Arguments.createMap()
 		map.putString("context_uri", newUri)
-		this.emitOnContextChanged(map)
+		// TODO make this cross platform
+		//this.emitOnContextChanged(map)
 	}
 
 	override fun onTrackChanged(
@@ -242,7 +276,9 @@ class LibrespotModule(reactContext: ReactApplicationContext) :
 			return File(context.cacheDir, "librespot_credentials.json")
 		}
 
-		fun createSession(context: Context, storeCredentials: Boolean, accessToken: String?): Session {
+		private data class SessionBuilderTuple(val builder: Session.Builder, val credentialsFile: File)
+
+		private fun createSessionBuilder(context: Context, storeCredentials: Boolean): SessionBuilderTuple {
 			val cacheDir = context.cacheDir
 			val credentialsFile = getCredentialsFile(context)
 			val audioCacheDir = File(cacheDir, "librespot_audio_cache")
@@ -258,13 +294,31 @@ class LibrespotModule(reactContext: ReactApplicationContext) :
 				.setPreferredLocale(Locale.getDefault().language)
 				.setDeviceType(Connect.DeviceType.SMARTPHONE)
 				.setDeviceId(null).setDeviceName("librespot-android")
+			return SessionBuilderTuple(builder,credentialsFile)
+		}
 
-			if(accessToken != null) {
-				return builder.setClientToken(accessToken).create();
-			} else if(storeCredentials) {
-				return builder.stored(credentialsFile).create();
+		fun createInitialSession(context: Context, storeCredentials: Boolean): Session {
+			val (builder,credentialsFile) = createSessionBuilder(context, storeCredentials)
+			if(storeCredentials) {
+				return builder.stored(credentialsFile).create()
 			}
-			return builder.create();
+			return builder.create()
+		}
+
+		fun createSessionWithAccessToken(context: Context, accessToken: String, storeCredentials: Boolean): Session {
+			val (builder,_) = createSessionBuilder(context, storeCredentials)
+			return builder.setClientToken(accessToken).create()
+		}
+
+		fun createSessionWithUsernamePassword(context: Context, username: String, password: String, storeCredentials: Boolean): Session {
+			val (builder,credentialsFile) = createSessionBuilder(context, storeCredentials)
+			return builder.userPass(username, password).create()
+		}
+
+		suspend fun createSessionWithOAuth(context: Context, storeCredentials: Boolean): Session =
+			withContext(Dispatchers.IO) {
+			val (builder, _) = createSessionBuilder(context, storeCredentials)
+			builder.oauth().create()
 		}
 	}
 }
