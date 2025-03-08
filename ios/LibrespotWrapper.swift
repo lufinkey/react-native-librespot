@@ -7,7 +7,7 @@ public class LibrespotWrapper: NSObject {
   
 	@objc
 	public override init() {
-    let fileManager = FileManager.default;
+		let fileManager = FileManager.default;
 		let credentialsPath = fileManager.urls(for: .libraryDirectory, in: .userDomainMask)
 			.first?.appendingPathComponent("Preferences/librespot_session").absoluteString;
 			let audioCachePath = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)
@@ -23,7 +23,8 @@ public class LibrespotWrapper: NSObject {
 		NSLog("We're calling a swift function!!!!");
 	}
 
-	@objc public func login(accessToken: String, storeCredentials: Bool) async throws {
+	@objc(loginWithAccessToken:storeCredentials:)
+	public func login(accessToken: String, storeCredentials: Bool) async throws {
 		try await core.login_with_accesstoken(accessToken, storeCredentials);
 	}
 

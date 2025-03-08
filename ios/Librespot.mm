@@ -59,8 +59,8 @@ RCT_EXPORT_MODULE()
 	[_module player_loadTrackURI:trackURI startPlaying:startPlaying position:0];
 }
 
--(void)preloadTrack:(NSString*)trackID {
-	[_module player_preloadTrackURI:trackID];
+-(void)preloadTrack:(NSString*)trackURI {
+	[_module player_preloadTrackURI:trackURI];
 }
 
 -(void)pause {
