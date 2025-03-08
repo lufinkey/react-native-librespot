@@ -17,7 +17,8 @@ Pod::Spec.new do |s|
 	s.source_files = "ios/*.{h,m,mm,cpp,swift}", "ios/generated/**/*.{h,m,mm,cpp}", "ios/rust/generated/**/*.{h,m,mm,cpp,swift}"
 	s.private_header_files = "ios/generated/**/*.h"
 	#s.preserve_paths = "ios/generated/**/*.h"
-	s.vendored_libraries = 'ios/rust/lib/libreact_native_librespot.a'
+	#s.vendored_libraries = 'ios/rust/lib/libreact_native_librespot.a'
+	s.vendored_frameworks = "ios/rust/lib/react_native_librespot.xcframework"
 	s.pod_target_xcconfig = { "DEFINES_MODULE" => "YES" }
 
 	# Use install_modules_dependencies helper to install the dependencies if React Native version >=0.71.0.
@@ -44,5 +45,5 @@ Pod::Spec.new do |s|
 		end
 	end
 
-	s.prepare_command = "./ios/build_rust.sh || exit $?"
+	s.prepare_command = "./ios/rust/build.sh || exit $?"
 end
