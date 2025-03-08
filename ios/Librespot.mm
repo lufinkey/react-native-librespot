@@ -26,11 +26,11 @@ RCT_EXPORT_MODULE()
 }
 
 -(void)login:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
-	reject(@"NotImplemented", @"Sorry");
+	reject(@"NotImplemented", @"Sorry", nil);
 }
 
 -(void)loginWithUsername:(NSString*)username password:(NSString*)password resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
-	reject(@"NotImplemented", @"I haven't done this yet");
+	reject(@"NotImplemented", @"I haven't done this yet", nil);
 }
 
 -(void)loginWithAccessToken:(NSString*)accessToken resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
