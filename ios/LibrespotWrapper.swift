@@ -9,13 +9,13 @@ public class LibrespotWrapper: NSObject {
 	public override init() {
     let fileManager = FileManager.default;
 		let credentialsPath = fileManager.urls(for: .libraryDirectory, in: .userDomainMask)
-      .first?.appendingPathComponent("Preferences/librespot_session").absoluteString;
-		let audioCachePath = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)
-      .first?.appendingPathComponent("librespot_audio_cache").absoluteString;
+			.first?.appendingPathComponent("Preferences/librespot_session").absoluteString;
+			let audioCachePath = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)
+			.first?.appendingPathComponent("librespot_audio_cache").absoluteString;
 		
 		self.core = LibrespotCore(
-      credentialsPath,
-      audioCachePath);
+			credentialsPath,
+			audioCachePath);
 		super.init()
 	}
 
