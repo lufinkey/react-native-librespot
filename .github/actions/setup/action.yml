@@ -20,10 +20,15 @@ runs:
         restore-keys: |
           ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
           ${{ runner.os }}-yarn-
-
+    
+    - name: Git Submodule Update
+      run: |
+        git pull --recurse-submodules
+        git submodule update --remote --recursive
+    
     - name: Install dependencies
       if: steps.yarn-cache.outputs.cache-hit != 'true'
-      run: git submodule update --init && yarn install --immutable
+      run: yarn install --immutable
       shell: bash
 
     - name: Cache dependencies
