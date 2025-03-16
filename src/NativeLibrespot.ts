@@ -2,12 +2,31 @@ import type { TurboModule } from 'react-native';
 import { TurboModuleRegistry } from 'react-native';
 import type { EventEmitter } from 'react-native/Libraries/Types/CodegenTypes';
 
+export type LibrespotSession = {
+	clientID: string,
+	accessToken: string,
+	expireTime: number,
+	scopes: string[],
+	refreshToken: string
+}
+
 export interface Spec extends TurboModule {
 	doAThing(): void;
 
-	login(): Promise<void>;
+	initialize(options: {
+		clientID: string,
+		redirectURL: string,
+		scopes: string[],
+		tokenSwapURL?: string
+		tokenRefreshURL?: string
+		tokenRefreshEarliness?: number
+		loginUserAgent?: string,
+		sessionStorageKey?: string
+	}): Promise<void>;
+
+	login(): Promise<boolean>;
 	loginWithUsernamePassword(username: string, password: string): Promise<void>;
-	loginWithAccessToken(accessToken: string): Promise<void>;
+	loginWithSession(session: LibrespotSession): Promise<void>;
 	logout(): void;
 
 	initPlayer(): void;
