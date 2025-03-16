@@ -1,12 +1,12 @@
-#import "Librespot.h"
+#import "LibrespotModule.h"
 #import <Foundation/Foundation.h>
 #import "Librespot-Swift.h"
 
-@interface Librespot(Librespot_LibrespotPlayerEventListener) <LibrespotPlayerEventListener>
+@interface LibrespotModule(Librespot_LibrespotPlayerEventListener) <LibrespotPlayerEventListener>
 @end
 
-@implementation Librespot {
-	LibrespotWrapper* _module;
+@implementation LibrespotModule {
+	LibrespotModule* _module;
 	BOOL _storeCredentials;
 }
 RCT_EXPORT_MODULE()
@@ -14,7 +14,7 @@ RCT_EXPORT_MODULE()
 -(id)init {
 	NSLog(@"Librespot init");
 	if(self = [super init]) {
-		_module = [LibrespotWrapper new];
+		_module = [[LibrespotModule alloc] init];
 		_storeCredentials = YES;
 	}
 	return self;

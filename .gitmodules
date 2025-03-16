@@ -1,3 +1,3 @@
 [submodule "ios/LibrespotSwift"]
-	path = ios/LibrespotSwift
+	path = external/LibrespotSwift
 	url = https://github.com/lufinkey/librespot-swift

@@ -2,7 +2,7 @@
 #ifdef __cplusplus
 #import "generated/RNLibrespotSpec/RNLibrespotSpec.h"
 
-@interface Librespot : NativeLibrespotSpecBase <NativeLibrespotSpec>
+@interface LibrespotModule : NativeLibrespotSpecBase <NativeLibrespotSpec>
 
 @end
 #endif
