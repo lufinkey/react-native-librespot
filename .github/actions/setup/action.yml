@@ -22,10 +22,8 @@ runs:
           ${{ runner.os }}-yarn-
     
     - name: Git Submodule Update
-      run: |
-        git pull --recurse-submodules
-        git submodule update --remote --recursive
-    
+      run: git submodule update --init
+
     - name: Install dependencies
       if: steps.yarn-cache.outputs.cache-hit != 'true'
       run: yarn install --immutable
