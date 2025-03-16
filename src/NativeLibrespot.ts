@@ -14,14 +14,14 @@ export interface Spec extends TurboModule {
 	doAThing(): void;
 
 	initialize(options: {
-		clientID: string,
-		redirectURL: string,
-		scopes: string[],
+		clientID?: string,
+		redirectURL?: string,
+		scopes?: string[],
 		tokenSwapURL?: string
 		tokenRefreshURL?: string
 		tokenRefreshEarliness?: number
 		loginUserAgent?: string,
-		sessionStorageKey?: string
+		persistSession?: boolean | string
 	}): Promise<void>;
 
 	login(): Promise<boolean>;

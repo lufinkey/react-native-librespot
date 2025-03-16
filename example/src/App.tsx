@@ -16,7 +16,8 @@ export default function App() {
 
 async function logInToSpotify() {
 	try {
-		await Librespot.login();
+		const session = await Librespot.login();
+		console.log(`session: ${JSON.stringify(session)}`);
 	} catch(error) {
 		console.error(error);
 	}

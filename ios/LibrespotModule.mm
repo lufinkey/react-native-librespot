@@ -8,17 +8,8 @@
 
 @implementation LibrespotModule {
 	Librespot* _module;
-	BOOL _storeCredentials;
 }
 RCT_EXPORT_MODULE()
-
--(id)init {
-	NSLog(@"Librespot init");
-	if(self = [super init]) {
-		_storeCredentials = YES;
-	}
-	return self;
-}
 
 -(void)doAThing {
 	NSLog(@"We called a native function!!");
@@ -30,30 +21,36 @@ RCT_EXPORT_MODULE()
 		return;
 	}
 	NSString* clientID = options.clientID();
-	if(clientID == nil) {
-		reject(@"Librespot.MissingOption", @"Missing clientID", nil);
-		return;
+	auto scopesArr = options.scopes();
+	NSMutableArray* scopes = nil;
+	if(scopesArr.has_value()) {
+		scopes = [NSMutableArray new];
+		for(NSString* scope : scopesArr.value()) {
+			[scopes addObject:scope];
+		}
 	}
-	facebook::react::LazyVector<NSString*> scopesArr = options.scopes();
-	NSMutableArray* scopes = [NSMutableArray array];
-	for(NSString* scope : scopesArr) {
-		[scopes addObject:scope];
-	}
-	NSURL* redirectURL = [NSURL URLWithString:options.redirectURL()];
-	if(redirectURL == nil) {
-		reject(@"Librespot.MissingOption", @"Missing redirectURL", nil);
-		return;
+	NSString* redirectURLString = options.redirectURL();
+	NSURL* redirectURL = redirectURLString != nil ? [NSURL URLWithString:redirectURLString] : nil;
+	NSString* tokenSwapURLString = options.tokenSwapURL();
+	NSString* tokenRefreshURLString = options.tokenSwapURL();
+	id persistSession = options.persistSession();
+	if([persistSession isKindOfClass:NSNumber.class]) {
+		if([persistSession boolValue]) {
+			persistSession = @"librespot_session";
+		} else {
+			persistSession = nil;
+		}
 	}
 	_module = [[Librespot alloc]
 		initWithClientID: clientID
 		scopes: scopes
 		redirectURL: redirectURL
-		tokenSwapURL: [NSURL URLWithString:options.tokenSwapURL()]
-		tokenRefreshURL: [NSURL URLWithString:options.tokenRefreshURL()]
+		tokenSwapURL: tokenSwapURLString != nil ? [NSURL URLWithString:tokenSwapURLString] : nil
+		tokenRefreshURL: tokenRefreshURLString != nil ? [NSURL URLWithString:tokenRefreshURLString] : nil
 		tokenRefreshEarliness: options.tokenRefreshEarliness().value_or([LibrespotAuth DefaultTokenRefreshEarliness])
 		loginUserAgent: options.loginUserAgent()
-		params: @{@"show_dialog": @"true"}
-		sessionUserDefaultsKey: options.sessionStorageKey()];
+		params: nil
+		sessionUserDefaultsKey:persistSession];
 	resolve(@YES);
 }
 
